@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import { projects } from "@/content/projects";
 
 export default function ProjectDetailPage({ params }: { params: { slug: string } }) {
@@ -7,6 +8,20 @@ export default function ProjectDetailPage({ params }: { params: { slug: string }
 
   return (
     <article className="space-y-8">
+    {p.cover && (
+        <div className="relative h-[260px] w-full overflow-hidden rounded-2xl border border-white/10">
+            <Image
+            src={p.cover}
+            alt={`${p.title} cover`}
+            fill
+            priority
+            className="object-cover"
+            sizes="100vw"
+            />
+            {/* readability gradient */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/10" />
+        </div>
+        )}
       <header className="space-y-3">
         <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">{p.title}</h1>
         <p className="text-white/70 md:text-lg">{p.subtitle}</p>

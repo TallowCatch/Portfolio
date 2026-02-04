@@ -6,6 +6,7 @@ export type Project = {
     tags: string[];
     stack: string[];
     highlights: string[];
+    cover?: string;
     links: { label: string; href: string }[];
     body: { label: string; text: string }[];
   };
@@ -15,6 +16,7 @@ export type Project = {
       slug: "rednet-ml",
       title: "REDNET-ML",
       subtitle: "Geospatial environmental risk mapping with temporal generalisation under shift",
+      cover: "/projects/rednet-ml/cover.png",
       year: "2025–2026",
       tags: ["Geospatial ML", "Distribution Shift", "Risk Mapping"],
       stack: ["Python", "PyTorch", "CatBoost", "YOLOv8", "ONNX", "scikit-learn"],
@@ -49,6 +51,7 @@ export type Project = {
       slug: "awrp",
       title: "AWRP",
       subtitle: "Arctic weather-dependent routing simulator + multi-objective optimisation",
+      cover: "/projects/awrp/cover-v2.png",
       year: "2025",
       tags: ["Simulation", "Routing", "Multi-objective"],
       stack: ["Python", "Graph Modelling", "NSGA-II"],
@@ -62,7 +65,7 @@ export type Project = {
         {
           label: "What makes it ‘you’",
           text:
-            "This is the same evaluation mindset as your Cooperative AI work: don’t just optimise—stress-test policies under changing conditions.",
+            "This is the same evaluation mindset as your Cooperative AI work: don’t just optimise, but conduct stress-test policies under changing conditions.",
         },
       ],
     },
@@ -71,6 +74,7 @@ export type Project = {
       slug: "rant",
       title: "RANT",
       subtitle: "Ant-inspired multi-robot exploration under partial observability",
+      cover: "/projects/rant/cover.png",
       year: "2024–2025",
       tags: ["Multi-Agent", "Robotics", "Evaluation"],
       stack: ["Python", "Webots", "Particle Filter"],
@@ -84,7 +88,7 @@ export type Project = {
         {
           label: "Why it matters",
           text:
-            "Clean example of coordination without central control—great anchor for your Cooperative AI narrative.",
+            "Clean example of coordination without central control, which is a great anchor for your Cooperative AI narrative.",
         },
       ],
     },
@@ -93,6 +97,7 @@ export type Project = {
       slug: "hemayah",
       title: "Hemayah",
       subtitle: "TinyML fall detection with embedded inference + robustness thinking",
+      cover: "/projects/hemayah/cover.png",
       year: "2024–2025",
       tags: ["TinyML", "Embedded", "Robustness"],
       stack: ["Python", "TensorFlow", "TFLite"],
@@ -115,6 +120,7 @@ export type Project = {
       slug: "firewall-configuration",
       title: "Firewall Configuration",
       subtitle: "C TCP server/client firewall rules + Python GUI + Makefile automation",
+      cover: "/projects/firewall-configuration/cover.png",
       year: "2024",
       tags: ["Systems", "C", "Networking"],
       stack: ["C", "Python", "Makefile", "TCP"],
@@ -130,25 +136,10 @@ export type Project = {
         {
           label: "Why it’s here",
           text:
-            "Shows you can do low-level systems work (protocols, parsing, logging) — useful contrast to your ML projects.",
+            "Shows you can do low-level systems work (protocols, parsing, logging), so it is useful contrast to your ML projects.",
         },
       ],
     },
   
-    {
-      slug: "currency-converter",
-      title: "Currency Converter",
-      subtitle: "Simple web converter using ExchangeRate API",
-      year: "2023–2024",
-      tags: ["Web", "JS", "API"],
-      stack: ["HTML", "CSS", "JavaScript"],
-      highlights: [
-        "Real-time conversion + swap feature + error handling",
-      ],
-      links: [{ label: "Repo", href: "https://github.com/TallowCatch/Currency-Converter" }],
-      body: [
-        { label: "Note", text: "Keep this as a lightweight ‘baseline’ web project—don’t over-feature it." },
-      ],
-    },
   ];
   

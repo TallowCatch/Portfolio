@@ -1,60 +1,80 @@
-import { profile } from "@/content/profile";
+import Link from "next/link";
 import { projects } from "@/content/projects";
+import { GraphBackground } from "@/components/GraphBackground";
+import { HeroWhoAmI } from "@/components/HeroWhoAmI";
 import { ProjectCard } from "@/components/ProjectCard";
-import { ProjectGraph } from "@/components/ProjectGraph";
+import { Timeline } from "@/components/Timeline";
+import LeadershipPage from "@/components/LeadershipPage";
+import SkillConstellations from "@/components/SkillConstellations";
 
 export default function HomePage() {
-  const featured = projects.filter(p =>
+  const featured = projects.filter((p) =>
     ["rednet-ml", "awrp", "rant", "hemayah", "firewall-configuration"].includes(p.slug)
   );
 
   return (
-    <div className="space-y-10">
-      <section className="space-y-4">
-        <h1 className="text-3xl font-semibold tracking-tight md:text-5xl">
-          {profile.name}
-        </h1>
-        <p className="max-w-2xl text-white/70 md:text-lg">
-          {profile.tagline}
-        </p>
+    <div className="relative">
+      <GraphBackground />
 
-        <div className="flex flex-wrap gap-2">
-          {profile.focusAreas.map((x) => (
-            <span
-              key={x}
-              className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs text-white/70"
+      <div className="space-y-10 section-wrap">
+        <HeroWhoAmI />
+
+        {/* Featured */}
+        <section className="space-y-4">
+          <div className="flex items-end justify-between">
+            <h2 className="section-title">Featured Case Studies</h2>
+            <Link
+              href="/projects"
+              className="text-sm text-white/70 underline decoration-white/20 hover:decoration-white/60"
             >
-              {x}
-            </span>
-          ))}
-        </div>
+              View all
+            </Link>
+          </div>
 
-        <div className="flex flex-wrap gap-3 pt-2">
-          <a
-            href="/Ameer-Alhashemi-CV.pdf"
-            className="rounded-xl border border-white/10 bg-white/[0.06] px-4 py-2 text-sm hover:bg-white/[0.1]"
-          >
-            Download CV (PDF)
-          </a>
-          <a
-            href={profile.github}
-            target="_blank"
-            rel="noreferrer"
-            className="rounded-xl border border-white/10 bg-black/30 px-4 py-2 text-sm hover:bg-white/[0.06]"
-          >
-            GitHub
-          </a>
-        </div>
-      </section>
+          <div className="flex flex-wrap justify-center gap-4">
+            {featured.map((p) => (
+              <div key={p.slug} className="w-full md:w-[calc(50%-0.5rem)]">
+                <ProjectCard p={p} />
+              </div>
+            ))}
+          </div>
+        </section>
 
-      <ProjectGraph />
+        {/* Skills */}
+        <section className="space-y-4">
+          <h2 className="section-title">Skills & Systems</h2>
+          <SkillConstellations />
+        </section>
 
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold tracking-tight">Featured case studies</h2>
-        <div className="grid gap-4 md:grid-cols-2">
-          {featured.map((p) => <ProjectCard key={p.slug} p={p} />)}
-        </div>
-      </section>
+        {/* Timeline */}
+        <Timeline />
+
+        {/* Leadership (one-pager section) */}
+        <section className="space-y-4">
+        <div className="flex items-end justify-between gap-6">
+          <div className="space-y-2">
+            <h2 className="section-title">Leading, Presenting, and Building</h2>
+            <p className="pl-4 max-w-2xl text-white/70">
+              A look at the environments where I’m most alive: defending ideas on stage,
+              collaborating in technical teams, and staying grounded through the routines that
+              keep me sharp.
+            </p>
+          </div>
+
+            {/* Optional link if you later make a dedicated gallery page */}
+            {/* <Link
+              href="/leadership"
+              className="text-sm text-white/70 underline decoration-white/20 hover:decoration-white/60"
+            >
+              View gallery
+            </Link> */}
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-5">
+            <LeadershipPage />
+          </div>
+        </section>
+      </div>
     </div>
   );
 }
