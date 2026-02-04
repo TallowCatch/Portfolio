@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Download, Github, Linkedin, Mail } from "lucide-react";
 import { profile } from "@/content/profile";
@@ -44,7 +45,7 @@ export function HeroWhoAmI() {
         transition={{ duration: 0.55, ease: "easeOut" }}
         className="rounded-3xl border border-white/10 bg-black/45 p-6 md:p-8 backdrop-blur"
       >
-        <div className="grid gap-6 md:grid-cols-[1.25fr_0.85fr] md:items-start">
+        <div className="grid gap-6 md:grid-cols-[1.25fr_0.85fr] md:items-stretch">
           {/* Left */}
           <div className="space-y-4">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-white/70">
@@ -60,7 +61,8 @@ export function HeroWhoAmI() {
             </h1>
 
             <p className="max-w-2xl text-white/70 md:text-lg">
-            I work on machine learning and systems under uncertainty, with an emphasis on evaluation, and behaviour in interactive environments.
+              I work on machine learning and systems under uncertainty, with an emphasis on evaluation,
+              and behaviour in interactive environments.
             </p>
 
             <div className="flex flex-wrap gap-2">
@@ -83,7 +85,7 @@ export function HeroWhoAmI() {
           </div>
 
           {/* Right */}
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 flex flex-col">
             <div className="flex items-center justify-between">
               <div className="text-xs font-semibold text-white/60">ABOUT</div>
 
@@ -96,28 +98,37 @@ export function HeroWhoAmI() {
               </div>
             </div>
 
-            <div className="mt-3 space-y-3 text-sm text-white/70 leading-relaxed">
-              <p>
-                I’m finishing an{" "}
-                <span className="text-white/85">
-                  MEng in Computer Science &amp; Software Engineering
-                </span>
-                . I like projects where you can measure behaviour end-to-end; evaluation,
-                robustness, and reproducible systems.
-              </p>
-              <p>
-                My current focus is{" "}
-                <span className="text-white/85">Cooperative AI</span> and{" "}
-                <span className="text-white/85">generalisation under shift</span>: what happens
-                when partners, incentives, or environments change, and you still need coordination to hold.
-              </p>
-            </div>
+            {/* Content layout */}
+            <div className="mt-4 flex flex-1 flex-col lg:flex-row gap-6">
+              {/* Text */}
+              <div className="flex-1 space-y-3 text-sm text-white/70 leading-relaxed">
+                <p>
+                  I’m finishing an{" "}
+                  <span className="text-white/85">
+                    MEng in Computer Science &amp; Software Engineering
+                  </span>
+                  . I like projects where you can measure behaviour end-to-end; evaluation, robustness,
+                  and reproducible systems.
+                </p>
+                <p>
+                  My current focus is{" "}
+                  <span className="text-white/85">Cooperative AI</span> and{" "}
+                  <span className="text-white/85">generalisation under shift</span>: what happens when
+                  partners, incentives, or environments change, and you still need coordination to hold.
+                </p>
+              </div>
 
-            <div className="mt-4">
-              <div className="rounded-xl border border-white/10 bg-black/25 p-3">
-                <div className="text-xs text-white/55">Now</div>
-                <div className="mt-1 text-sm text-white/80">
-                  Build a clean research narrative + ship polished demos.
+              {/* Portrait fills bottom */}
+              <div className="lg:w-44 flex">
+                <div className="relative flex-1 rounded-2xl overflow-hidden border border-white/10 bg-white/[0.03]">
+                  <Image
+                    src="/leadership/Ameer-pfp.jpeg"
+                    alt="Ameer profile"
+                    fill
+                    className="object-cover"
+                    sizes="180px"
+                    priority
+                  />
                 </div>
               </div>
             </div>
