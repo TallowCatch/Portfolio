@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 /* ----------------------------- Types ----------------------------- */
 
@@ -77,7 +77,6 @@ const CONSTELLATIONS: Constellation[] = [
       { id: "ablations", label: "Ablation Studies", group: "evaluation", tier: "support", depth: 0.7 },
     ],
   },
-
   {
     id: "geo-ml",
     title: "Geospatial ML",
@@ -94,7 +93,6 @@ const CONSTELLATIONS: Constellation[] = [
       { id: "pipelines", label: "Data Pipelines", group: "systems", tier: "support", depth: 0.55 },
     ],
   },
-
   {
     id: "systems",
     title: "Systems",
@@ -115,7 +113,6 @@ const CONSTELLATIONS: Constellation[] = [
       { id: "edge", label: "Edge Inference", group: "systems", tier: "core", depth: 0.8 },
     ],
   },
-
   {
     id: "sim-eval",
     title: "Simulation & Evaluation",
@@ -140,6 +137,25 @@ const CONSTELLATIONS: Constellation[] = [
 export default function SkillConstellations() {
   const [hoverGroup, setHoverGroup] = useState<SkillGroup | null>(null);
 
+  // light-weight animation tick (30fps-ish)
+  const rafRef = useRef<number | null>(null);
+  const lastRef = useRef<number>(0);
+  const [t, setT] = useState(0);
+
+  useEffect(() => {
+    const loop = (now: number) => {
+      if (now - lastRef.current > 33) {
+        lastRef.current = now;
+        setT(now);
+      }
+      rafRef.current = requestAnimationFrame(loop);
+    };
+    rafRef.current = requestAnimationFrame(loop);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
+
   // View bounds / padding so nothing clips
   const W = 1040;
   const H = 700;
@@ -154,7 +170,15 @@ export default function SkillConstellations() {
   const STAR_MIN_Y = PAD_TOP;
   const STAR_MAX_Y = H - PAD_BOTTOM;
 
-  type PlacedSkill = Skill & { x: number; y: number; constellationId: string };
+  type PlacedSkill = Skill & {
+    x: number;
+    y: number;
+    constellationId: string;
+    seedA: number;
+    seedB: number;
+    freqA: number;
+    freqB: number;
+  };
 
   // Skills placed (deterministic) + clamped to bounds + repelled to avoid overlaps
   const placed: PlacedSkill[] = useMemo(() => {
@@ -174,15 +198,21 @@ export default function SkillConstellations() {
 
         const x = c.center.x + Math.cos(angle) * r + rand(i + ci * 29, 28);
         const y = c.center.y + Math.sin(angle) * r + rand(i + ci * 29 + 3, 28);
-        
+
         let cx = clamp(x, STAR_MIN_X + 18, STAR_MAX_X - 18);
         let cy = clamp(y, STAR_MIN_Y + 18, STAR_MAX_Y - 18);
 
-        // --- NEW: boundary scatter to avoid vertical stacking ---
+        // boundary scatter to avoid right-edge stacking
         if (cx > STAR_MAX_X - 24) {
           cx -= 10 * Math.sin((i + ci * 7) * 1.7);
         }
-        // -------------------------------------------------------
+
+        // per-node deterministic jitter params (seeds + slightly different frequencies)
+        const base = (i + 1) * 173 + (ci + 1) * 997;
+        const seedA = rand(base, 1);
+        const seedB = rand(base + 91, 1);
+        const freqA = 0.55 + Math.abs(rand(base + 13, 0.35)); // ~0.55..0.90
+        const freqB = 0.50 + Math.abs(rand(base + 37, 0.38)); // ~0.50..0.88
 
         out.push({
           ...s,
@@ -190,15 +220,18 @@ export default function SkillConstellations() {
           x: cx,
           y: cy,
           depth,
-        });        
+          seedA,
+          seedB,
+          freqA,
+          freqB,
+        });
       });
     });
 
-    // --- NEW: small relaxation pass to prevent overlaps ---
-    const MIN_SEP = 30; // increase if you want more spacing
+    // relaxation pass to prevent overlaps
+    const MIN_SEP = 30;
     const MIN_SEP2 = MIN_SEP * MIN_SEP;
 
-    // Move points apart, but only within the same constellation (keeps layout vibe)
     for (let iter = 0; iter < 14; iter++) {
       for (let i = 0; i < out.length; i++) {
         for (let j = i + 1; j < out.length; j++) {
@@ -207,12 +240,11 @@ export default function SkillConstellations() {
           const d = dist2(out[i].x, out[i].y, out[j].x, out[j].y);
           if (d >= MIN_SEP2) continue;
 
-          // direction (add tiny epsilon so exact overlaps still move deterministically)
           const dx = out[i].x - out[j].x + 0.001 * rand(i * 41 + j * 17, 1);
           const dy = out[i].y - out[j].y + 0.001 * rand(i * 19 + j * 53, 1);
           const len = Math.max(0.0001, Math.hypot(dx, dy));
 
-          const push = (MIN_SEP - Math.sqrt(d + 1e-6)) * 0.55; // how hard to push
+          const push = (MIN_SEP - Math.sqrt(d + 1e-6)) * 0.55;
           const ux = dx / len;
           const uy = dy / len;
 
@@ -224,13 +256,46 @@ export default function SkillConstellations() {
         }
       }
     }
-    // --- end NEW ---
 
     return out;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const activeGroup: SkillGroup | null = hoverGroup;
+
+  // Jittered positions (cheap: just compute per render from base)
+  const jittered = useMemo(() => {
+    // time in seconds
+    const tt = t * 0.001;
+
+    return placed.map((s) => {
+      const z = s.depth ?? 0.5;
+
+      // smaller = calmer (so links don’t look messy)
+      const ampBase = s.tier === "core" ? 1.6 : 2.4;
+      const amp = ampBase * (0.65 + z * 0.6);
+
+      const dx = Math.sin(tt * (1.15 * s.freqA) + s.seedA * 10.0) * amp;
+      const dy = Math.cos(tt * (1.05 * s.freqB) + s.seedB * 10.0) * amp;
+
+      return {
+        ...s,
+        jx: clamp(s.x + dx, STAR_MIN_X + 18, STAR_MAX_X - 18),
+        jy: clamp(s.y + dy, STAR_MIN_Y + 18, STAR_MAX_Y - 18),
+      };
+    });
+  }, [placed, t, STAR_MIN_X, STAR_MAX_X, STAR_MIN_Y, STAR_MAX_Y]);
+
+  // Precompute same-group link pairs once (so animation doesn’t redo O(n^2) allocations)
+  const linkPairs = useMemo(() => {
+    const pairs: Array<[number, number]> = [];
+    for (let i = 0; i < placed.length; i++) {
+      for (let j = i + 1; j < placed.length; j++) {
+        if (placed[i].group === placed[j].group) pairs.push([i, j]);
+      }
+    }
+    return pairs;
+  }, [placed]);
 
   /* ----------------------------- Smart title placement ----------------------------- */
   const titlePos = useMemo(() => {
@@ -305,7 +370,7 @@ export default function SkillConstellations() {
         className="rounded-xl border border-white/10"
         style={{ background: "#070a10" }}
       >
-        {/* Constellation titles (smart placement) */}
+        {/* Constellation titles */}
         {CONSTELLATIONS.map((c) => {
           const tp = titlePos[c.id] ?? { x: c.center.x, y: c.center.y - c.radius - 80 };
           return (
@@ -322,26 +387,29 @@ export default function SkillConstellations() {
           );
         })}
 
-        {/* Group links */}
-        {placed.map((a, i) =>
-          placed.slice(i + 1).map((b, j) =>
-            a.group === b.group ? (
-              <line
-                key={`${i}-${j}`}
-                x1={a.x}
-                y1={a.y}
-                x2={b.x}
-                y2={b.y}
-                stroke={GROUP_COLOR[a.group]}
-                strokeOpacity={activeGroup === null ? 0.06 : activeGroup === a.group ? 0.32 : 0.012}
-                strokeWidth={activeGroup === a.group ? 1.35 : 1}
-              />
-            ) : null
-          )
-        )}
+        {/* Group links (use jittered positions) */}
+        {linkPairs.map(([i, j]) => {
+          const a = jittered[i];
+          const b = jittered[j];
+
+          return (
+            <line
+              key={`${i}-${j}`}
+              x1={a.jx}
+              y1={a.jy}
+              x2={b.jx}
+              y2={b.jy}
+              stroke={GROUP_COLOR[a.group]}
+              strokeOpacity={
+                activeGroup === null ? 0.06 : activeGroup === a.group ? 0.32 : 0.012
+              }
+              strokeWidth={activeGroup === a.group ? 1.35 : 1}
+            />
+          );
+        })}
 
         {/* Skills */}
-        {placed.map((s) => {
+        {jittered.map((s) => {
           const z = s.depth ?? 0.5;
           const isActive = activeGroup === null || activeGroup === s.group;
 
@@ -355,8 +423,8 @@ export default function SkillConstellations() {
               onMouseLeave={() => setHoverGroup(null)}
             >
               <circle
-                cx={s.x}
-                cy={s.y}
+                cx={s.jx}
+                cy={s.jy}
                 r={r}
                 fill={GROUP_COLOR[s.group]}
                 opacity={isActive ? 1 : 0.16}
@@ -369,8 +437,8 @@ export default function SkillConstellations() {
 
               {activeGroup === s.group && (
                 <text
-                  x={clamp(s.x + 8, STAR_MIN_X + 4, STAR_MAX_X - 8)}
-                  y={clamp(s.y + 4, 24, H - 24)}
+                  x={clamp(s.jx + 8, STAR_MIN_X + 4, STAR_MAX_X - 8)}
+                  y={clamp(s.jy + 4, 24, H - 24)}
                   className="fill-white text-[11px]"
                   style={{ pointerEvents: "none" }}
                 >

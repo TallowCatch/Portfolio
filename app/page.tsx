@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { projects } from "@/content/projects";
+import FeaturedCaseStudies from "@/components/FeaturedCaseStudies"
 import { GraphBackground } from "@/components/GraphBackground";
 import { HeroWhoAmI } from "@/components/HeroWhoAmI";
 import { ProjectCard } from "@/components/ProjectCard";
@@ -20,25 +21,29 @@ export default function HomePage() {
         <HeroWhoAmI />
 
         {/* Featured */}
-        <section className="space-y-4">
-          <div className="flex items-end justify-between">
-            <h2 className="section-title">Featured Case Studies</h2>
-            <Link
-              href="/projects"
-              className="text-sm text-white/70 underline decoration-white/20 hover:decoration-white/60"
-            >
-              View all
-            </Link>
-          </div>
+      <section className="space-y-4">
+        <div className="flex items-end justify-between">
+          {/* <h2 className="section-title">Featured Case Studies</h2> */}
 
-          <div className="flex flex-wrap justify-center gap-4">
-            {featured.map((p) => (
-              <div key={p.slug} className="w-full md:w-[calc(50%-0.5rem)]">
-                <ProjectCard p={p} />
-              </div>
-            ))}
-          </div>
-        </section>
+          {/* <Link
+            href="/projects"
+            className="text-sm text-white/70 underline decoration-white/20 hover:decoration-white/60"
+          >
+            View all
+          </Link> */}
+        </div>
+
+        <FeaturedCaseStudies />
+
+        {/* <div className="flex flex-wrap justify-center gap-4">
+          {featured.map((p) => (
+            <div key={p.slug} className="w-full md:w-[calc(50%-0.5rem)]">
+              <ProjectCard p={p} />
+            </div>
+          ))}
+        </div> */}
+      </section>
+
 
         {/* Skills */}
         <section className="space-y-4">

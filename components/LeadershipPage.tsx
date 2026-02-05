@@ -14,7 +14,7 @@ const pics: Pic[] = [
   // Hero (wide)
   {
     src: "/leadership/Symposium.jpeg",
-    alt: "King's Robotics symposium 26'",
+    alt: "King's Robotics Symposium 26'",
     cols: 2,
     rows: 26,
     pos: "50% 38%",
